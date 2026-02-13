@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Italian Flashcards</title>
+<style>
+body { font-family: Arial; background:#111; color:white; text-align:center; padding:40px; }
+button { padding:10px 15px; margin:5px; font-size:18px; }
+.card { font-size:40px; margin:30px 0; }
+.correct { color:lightgreen; }
+.wrong { color:#ff6b6b; }
+</style>
+</head>
+<body>
+
+<h1>Italian Article Trainer</h1>
+
+<div class="card" id="word">Loading...</div>
+
+<div id="buttons"></div>
+
+<p id="feedback"></p>
+<p id="score"></p>
+
+<script>
+let score = 0;
+let total = 0;
+let current = null;
+
+async function loadData() {
+  const res = await fetch('bank.json');
+  return await res.json();
+}
+
+let bank = [];
+
+function newWord() {
+  current = bank[Math.floor(Math.random()*bank.length)];
+  document.getElementById("word").innerText = current.noun;
+  document.getElementById("feedback").innerText = "";
+}
+
+function answer(choice) {
+  total++;
+  if(choice === current.article) {
+    score++;
+    document.getElementById("feedback").innerHTML = "<span class='correct'>Correct!</span>";
+  } else {
+    document.getElementById("feedback").innerHTML =
+      "<span class='wrong'>Wrong! Correct: " + current.article + "</span>";
+  }
+  document.getElementById("score").innerText = "Score: " + score + "/" + total;
+  setTimeout(newWord, 800);
+}
+
+function createButtons() {
+  const articles = ["il","lo","la","l'"];
+  const container = document.getElementById("buttons");
+  articles.forEach(a=>{
+    const btn = document.createElement("button");
+    btn.innerText = a;
+    btn.onclick = ()=>answer(a);
+    container.appendChild(btn);
+  });
+}
+
+loadData().then(data=>{
+  bank = data;
+  createButtons();
+  newWord();
+});
+</script>
+
+</body>
+</html>
